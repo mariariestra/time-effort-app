@@ -9,3 +9,8 @@ src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></scri
 </head> <body> <div id="root"></div> <script type="text/babel"
 src="index.jsx"></script> <script type="text/babel"> const { jsPDF } = window.jspdf;
 ;
+<script>
+  window.addEventListener('error', (e) => {
+    console.error('Error:', e.message, e.filename, e.lineno);
+  });
+</script>
