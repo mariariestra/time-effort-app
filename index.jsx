@@ -1052,3 +1052,4 @@ const ErrorMessage = ({ message }) => (
 );
 
 export default TimeEffortApp;
+ReactDOM.render(<TimeEffortApp />, document.getElementById('root'));
