@@ -1,17 +1,139 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport"
-content="width=device-width, initial-scale=1.0"> <title>Time & Effort Report -
-EcoExploratorio</title> <script crossorigin
-src="https://unpkg.com/react@18/umd/react.production.min.js"></script> <script
-crossorigin
-src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script> <script
-src="https://unpkg.com/@babel/standalone/babel.min.js"></script> <script
-src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head> <body> <div id="root"></div> <script type="text/babel"
-src="./index.js"></script> <script type="text/babel"> const { jsPDF } = window.jspdf;
-;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time & Effort Tracker</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 40px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+input, button {
+    padding: 8px;
+    margin: 5px 0;
+}
+
+button {
+    cursor: pointer;
+    background-color: #1f4e79;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #163a59;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.total {
+    font-weight: bold;
+    margin-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Time & Effort Tracker</h1>
+
+    <h3>Add Entry</h3>
+    <input type="text" id="employee" placeholder="Employee Name">
+    <input type="date" id="date">
+    <input type="number" id="hours" placeholder="Hours" step="0.1">
+    <button onclick="addEntry()">Add</button>
+
+    <table id="entriesTable">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Hours</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="total">
+        Total Hours: <span id="totalHours">0</span>
+    </div>
+</div>
+
 <script>
-  window.addEventListener('error', (e) => {
-    console.error('Error:', e.message, e.filename, e.lineno);
-  });
+let entries = JSON.parse(localStorage.getItem("entries")) || [];
+
+function renderTable() {
+    const tbody = document.querySelector("#entriesTable tbody");
+    tbody.innerHTML = "";
+    let total = 0;
+
+    entries.forEach(entry => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${entry.employee}</td>
+            <td>${entry.date}</td>
+            <td>${entry.hours}</td>
+        `;
+
+        tbody.appendChild(row);
+        total += parseFloat(entry.hours);
+    });
+
+    document.getElementById("totalHours").textContent = total.toFixed(2);
+    localStorage.setItem("entries", JSON.stringify(entries));
+}
+
+function addEntry() {
+    const employee = document.getElementById("employee").value;
+    const date = document.getElementById("date").value;
+    const hours = document.getElementById("hours").value;
+
+    if (!employee || !date || !hours) {
+        alert("Please complete all fields.");
+        return;
+    }
+
+    entries.push({ employee, date, hours });
+    renderTable();
+
+    document.getElementById("employee").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("hours").value = "";
+}
+
+renderTable();
 </script>
-<h1>SI VES ESTO, GITHUB PAGES FUNCIONA</h1>
+
+</body>
+</html>
