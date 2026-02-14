@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Time & Effort Report v2.1 - EcoExploratorio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      padding: 40px 30px;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+
+    .progress-steps {
+      display: flex;
+      padding: 30px;
+      border-bottom: 1px solid #e5e7eb;
+      gap: 12px;
+    }
+
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .step-circle.active {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .step-circle.completed {
+      background: #10b981;
+      color: white;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .step-label.active {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #1f2937;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #3b82f6;
+    }
+
+    input.error, select.error, textarea.error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .helper-text {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .total-box {
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid;
+    }
+
+    .total-box.valid {
+      background: #dcfce7;
+      border-color: #22c55e;
+    }
+
+    .total-box.invalid {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+
+    .total-box.over {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .total-percent {
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .funding-source {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: white;
+    }
+
+    .funding-source.has-value {
+      background: #f9fafb;
+    }
+
+    .funding-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .funding-color {
+      width: 4px;
+      height: 20px;
+      border-radius: 2px;
+      margin-right: 12px;
+    }
+
+    .funding-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      flex: 1;
+    }
+
+    .hours-input-section {
+      margin-bottom: 12px;
+    }
+
+    .hours-and-tasks {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .hours-input-wrapper {
+      position: relative;
+    }
+
+    .hours-input-wrapper input {
+      padding-right: 50px;
+    }
+
+    .hours-label {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+
+    .daily-breakdown {
+      margin-top: 8px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .daily-breakdown-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .daily-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 8px;
+    }
+
+    .daily-input {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .daily-input label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 0;
+      font-weight: 500;
+    }
+
+    .daily-input input {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    .cert-box {
+      background: #f0f9ff;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .cert-box ul {
+      margin-top: 12px;
+      padding-left: 24px;
+    }
+
+    .cert-box li {
+      margin-bottom: 8px;
+      line-height: 1.8;
+    }
+
+    .cert-footer {
+      font-size: 12px;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #bfdbfe;
+    }
+
+    .summary-box {
+      margin-top: 32px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      background: #f9fafb;
+    }
+
+    .summary-box h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1f2937;
+    }
+
+    .summary-item {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 4px;
+    }
+
+    .summary-divider {
+      margin: 12px 0;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .nav-buttons {
+      padding: 24px 30px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f9fafb;
+    }
+
+    button {
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-prev {
+      background: white;
+      color: #1f2937;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-prev:disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .success-toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      font-size: 16px;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+
+    .success-toast.show {
+      display: flex;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-steps {
+        padding: 20px 15px;
+      }
+
+      .step-label {
+        font-size: 10px;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Time & Effort Report</h1>
+      <p>EcoExploratorio: Museo de Ciencias de Puerto Rico</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="step">
+        <div class="step-circle active" id="circle-1">1</div>
+        <span class="step-label active" id="label-1">Employee Info</span>
+      </div>
+      <div class="step">
+        <div class="step-circle" id="circle-2">2</div>
+        <span class="step-label" id="label-2">Time Distribution</span>
+      </div>
+      <div class="step">
+        <div class="step-circle" id="circle-3">3</div>
+        <span class="step-label" id="label-3">Certification & Submit</span>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <div class="content">
+      <!-- STEP 1: Employee Information -->
+      <div class="form-section active" id="section-1">
+        <h2>Employee Information</h2>
+
+        <div class="form-group">
+          <label>Employee Full Name <span class="required">*</span></label>
+          <select id="employeeName">
+            <option value="">Select your name...</option>
+            <option value="Alba Figueroa">Alba Figueroa</option>
+            <option value="Aibenlitz del Río">Aibenlitz del Río</option>
+            <option value="Annais Talbott">Annais Talbott</option>
+            <option value="Arnaldo Cabrera">Arnaldo Cabrera</option>
+            <option value="Atenas Leandry">Atenas Leandry</option>
+            <option value="Bryan Serrano">Bryan Serrano</option>
+            <option value="Daneisha Morales">Daneisha Morales</option>
+            <option value="Ferdinand Guzmán">Ferdinand Guzmán</option>
+            <option value="Gitza Más">Gitza Más</option>
+            <option value="Gladys Flecha">Gladys Flecha</option>
+            <option value="Irmaris Rivera">Irmaris Rivera</option>
+            <option value="Jennifer Espada">Jennifer Espada</option>
+            <option value="Jenny Guevara">Jenny Guevara</option>
+            <option value="Laureliz Antuna">Laureliz Antuna</option>
+            <option value="Maria Riestra">Maria Riestra</option>
+            <option value="Marieliz Díaz">Marieliz Díaz</option>
+            <option value="Merry Manso">Merry Manso</option>
+            <option value="Millie Medina">Millie Medina</option>
+            <option value="Nataly Cortés">Nataly Cortés</option>
+            <option value="Sara Olivero">Sara Olivero</option>
+            <option value="Sonimar Medina">Sonimar Medina</option>
+            <option value="Valeria Santiago">Valeria Santiago</option>
+          </select>
+          <span class="error-message" id="error-employeeName"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Job Title / Position <span class="required">*</span></label>
+          <select id="jobTitle">
+            <option value="">Select job title...</option>
+            <option value="Administration IT">Administration IT</option>
+            <option value="Asistente de Educación">Asistente de Educación</option>
+            <option value="Asistente de Educación y Montaje">Asistente de Educación y Montaje</option>
+            <option value="Community Events & Education Manager">Community Events & Education Manager</option>
+            <option value="Coordinadora de Operaciones y Servicios">Coordinadora de Operaciones y Servicios</option>
+            <option value="Director de Finanzas">Director de Finanzas</option>
+            <option value="Directora Ejecutiva">Directora Ejecutiva</option>
+            <option value="Diseñadora Gráfica">Diseñadora Gráfica</option>
+            <option value="Educador ERI">Educador ERI</option>
+            <option value="Educadora">Educadora</option>
+            <option value="Educadora ERI">Educadora ERI</option>
+            <option value="ERI Compliance and Assistant to the Project Director">ERI Compliance and Assistant to the Project Director</option>
+            <option value="ERI Project Director">ERI Project Director</option>
+            <option value="Exhibit Administrator">Exhibit Administrator</option>
+            <option value="Gerente Administrativo">Gerente Administrativo</option>
+            <option value="Gerente de Educación y Alcance Comunitaria ERI">Gerente de Educación y Alcance Comunitaria ERI</option>
+            <option value="Gerente de Operaciones">Gerente de Operaciones</option>
+            <option value="Social Media Specialist">Social Media Specialist</option>
+            <option value="Other">Other (specify below)</option>
+          </select>
+          <span class="error-message" id="error-jobTitle"></span>
+        </div>
+
+        <div class="form-group" id="otherJobTitleGroup" style="display: none;">
+          <label>Specify Job Title <span class="required">*</span></label>
+          <input type="text" id="otherJobTitle" placeholder="Enter your job title">
+          <span class="error-message" id="error-otherJobTitle"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Department / Program Area <span class="required">*</span></label>
+          <select id="department">
+            <option value="">Select department...</option>
+            <option value="Education">Education</option>
+            <option value="Exhibits">Exhibits</option>
+            <option value="Administration">Administration</option>
+            <option value="Operations">Operations</option>
+            <option value="Finance">Finance</option>
+            <option value="ERI - Resilience Institute">ERI - Resilience Institute</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-message" id="error-department"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Pay Period (Bi-Weekly) <span class="required">*</span></label>
+          <select id="payPeriod">
+            <option value="">Select pay period...</option>
+          </select>
+          <span class="error-message" id="error-payPeriod"></span>
+        </div>
+      </div>
+
+      <!-- STEP 2: Time Distribution -->
+      <div class="form-section" id="section-2">
+        <h2>Time Distribution by Funding Source</h2>
+        
+        <div class="form-group">
+          <label>Total Hours Worked During This Pay Period</label>
+          <input type="number" id="totalHours" placeholder="Will auto-calculate from hours below" min="0" step="0.5" readonly style="background: #f3f4f6; cursor: not-allowed;">
+          <div class="helper-text">This field auto-calculates as you enter hours in each project below</div>
+          <span class="error-message" id="error-totalHours"></span>
+        </div>
+
+        <p style="font-size: 14px; color: #6b7280; margin: 24px 0; line-height: 1.6;">
+          Enter the hours spent on each funding source and describe the activities performed.
+          The total hours must match the total hours worked above.
+        </p>
+
+        <!-- Total Display -->
+        <div class="total-box invalid" id="totalBox">
+          <div>
+            <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 4px;">
+              Total Hours Allocated
+            </div>
+            <div style="font-size: 12px; color: #6b7280;" id="totalMessage">
+              Must equal total hours worked
+            </div>
+          </div>
+          <div class="total-percent" id="totalHours2">0.0 hrs</div>
+        </div>
+
+        <!-- Funding Sources -->
+        <div id="fundingSourcesContainer"></div>
+
+        <span class="error-message" id="error-hours"></span>
+      </div>
+
+      <!-- STEP 3: Employee Certification -->
+      <div class="form-section" id="section-3">
+        <h2>Employee Certification & Submit</h2>
+
+        <div class="cert-box">
+          <div style="font-size: 14px; line-height: 1.8; color: #1f2937; margin-bottom: 16px;">
+            <strong>I certify that:</strong>
+            <ul style="margin-top: 12px; padding-left: 24px;">
+              <li>This report accurately reflects the <strong>actual time worked</strong> by me during the period indicated above</li>
+              <li>The distribution of time is a <strong>true and correct representation</strong> of my activities</li>
+              <li>This information is used to support salary charges to grants and may be subject to <strong>audit or review</strong></li>
+              <li>I understand that knowingly providing false information may result in <strong>disciplinary action and recovery of funds</strong></li>
+            </ul>
+          </div>
+          <div class="cert-footer">
+            In compliance with 2 CFR 200.430(i) - Compensation for Personal Services
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Employee Electronic Signature (Full Name) <span class="required">*</span></label>
+          <input type="text" id="employeeSignature" placeholder="Type your full name to sign electronically">
+          <div class="helper-text">By typing your name, you are electronically signing this certification</div>
+          <span class="error-message" id="error-employeeSignature"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Date <span class="required">*</span></label>
+          <input type="date" id="employeeDate">
+          <span class="error-message" id="error-employeeDate"></span>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box" style="margin-top: 32px;">
+          <h3>Report Summary</h3>
+          <div id="summaryContent"></div>
+        </div>
+
+        <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; margin-top: 24px;">
+          <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 8px;">
+            📋 Next Steps After Submission
+          </div>
+          <div style="font-size: 13px; color: #78350f; line-height: 1.8;">
+            1. Download your report (.txt file)<br>
+            2. Submit it via Google Form<br>
+            3. Your supervisor will receive automatic notification<br>
+            4. Supervisor will review and approve in Google Sheet<br>
+            5. Finance will process after supervisor approval
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-buttons">
+      <button class="btn-prev" id="btnPrev" disabled>← Previous</button>
+      <button class="btn-next" id="btnNext">Next →</button>
+      <button class="btn-submit" id="btnSubmit" style="display: none;">Generate PDF & Submit</button>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" id="successToast">
+    <span style="font-size: 24px;">✓</span>
+    PDF Generated Successfully!
+  </div>
+
+  <script>
+    // Funding sources configuration
+    const fundingSources = [
+      { key: 'eri', label: 'ERI - Instituto de Resiliencia', color: '#2563eb', budgetKey: 'ERI' },
+      { key: 'nasaIsla', label: 'NASA Isla Grant 2', color: '#dc2626', budgetKey: 'NASA Isla' },
+      { key: 'oceanos', label: 'OCEANOS / NASA Federal Award', color: '#059669', budgetKey: 'NASA OCEANOS' },
+      { key: 'capex', label: 'CAPEX / Government Funds (OGP)', color: '#7c3aed', budgetKey: 'CAPEX' },
+      { key: 'dol', label: 'Department of Labor (Law 52)', color: '#ea580c', budgetKey: 'Ley 52-EcoEx' },
+      { key: 'private', label: 'Private/Corporate Grants', color: '#0891b2', budgetKey: 'Private/Corporate' },
+      { key: 'unrestricted', label: 'General Operations (Unrestricted)', color: '#64748b', budgetKey: 'EcoEx General' }
+    ];
+
+    // PTO types for EcoEx General
+    const ptoTypes = [
+      { key: 'holiday', label: 'Holiday' },
+      { key: 'vacation', label: 'Vacation' },
+      { key: 'sickDay', label: 'Sick Day' }
+    ];
+
+    // Employee Budget Allocations - Based on Salary Distribution Guide (Enero 2026)
+    const EMPLOYEE_ALLOCATIONS = {
+      "Arnaldo Cabrera": { "NASA OCEANOS": 0.03, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.22 },
+      "Nataly Cortés": { "ERI": 0.50, "EcoEx General": 0.50 },
+      "Sara Olivero": { "NASA Isla": 0.75, "EcoEx General": 0.25 },
+      "Marieliz Díaz": { "NASA OCEANOS": 0.02, "NASA Isla": 0.50, "EcoEx General": 0.48 },
+      "Valeria Santiago": { "Ley 52-EcoEx": 1.00 },
+      "Bryan Serrano": { "NASA OCEANOS": 0.04, "NASA Isla": 0.25, "EcoEx General": 0.71 },
+      "Millie Medina": { "NASA OCEANOS": 0.04, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.21 },
+      "Ferdinand Guzmán": { "ERI": 1.00 },
+      "Maria Riestra": { "ERI": 0.50, "CAPEX": 0.20, "EcoEx General": 0.10 },
+      "Jenny Guevara": { "ERI": 0.25, "CAPEX": 0.20, "EcoEx General": 0.20 },
+      "Atenas Leandry": { "NASA OCEANOS": 0.06, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.19 },
+      "Laureliz Antuna": { "NASA OCEANOS": 0.06, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.19 },
+      "Daneisha Morales": { "NASA OCEANOS": 0.06, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.19 },
+      "Gitza Más": { "NASA OCEANOS": 0.06, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.19 },
+      "Annais Talbott": { "ERI": 1.00 },
+      "Sonimar Medina": { "ERI": 1.00 },
+      "Gladys Flecha": { "ERI": 1.00 },
+      "Jennifer Espada": { "NASA OCEANOS": 0.01, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.24 },
+      "Aibenlitz del Río": { "ERI": 1.00 },
+      "Irmaris Rivera": { "NASA OCEANOS": 0.01, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.24 },
+      "Merry Manso": { "NASA OCEANOS": 0.03, "NASA Isla": 0.25, "ERI": 0.50, "EcoEx General": 0.22 },
+      "Alba Figueroa": { "NASA OCEANOS": 0.09, "NASA Isla": 0.25, "EcoEx General": 0.66 }
+    };
+
+    // Normalize employee name for matching
+    function normalizeEmployeeName(name) {
+      return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
+    // Get employee budget allocation
+    function getEmployeeAllocation(employeeName) {
+      const normalized = normalizeEmployeeName(employeeName);
+      for (const [key, value] of Object.entries(EMPLOYEE_ALLOCATIONS)) {
+        if (normalizeEmployeeName(key) === normalized) {
+          return value;
+        }
+      }
+      return null;
+    }
+    
+    // Current employee allocation
+    let currentEmployeeAllocation = null;
+
+    // Generate bi-weekly pay periods starting from Monday Feb 2, 2026
+    function generatePayPeriods() {
+      const periods = [];
+      const startDate = new Date('2026-02-02'); // Monday, Feb 2, 2026
+      const endDate = new Date('2027-12-31'); // Generate periods through end of 2027
+      
+      let currentStart = new Date(startDate);
+      
+      while (currentStart <= endDate) {
+        let currentEnd = new Date(currentStart);
+        currentEnd.setDate(currentEnd.getDate() + 13); // 14 days total (Mon-Sun)
+        
+        const startStr = currentStart.toISOString().split('T')[0];
+        const endStr = currentEnd.toISOString().split('T')[0];
+        
+        periods.push({
+          value: `${startStr}|${endStr}`,
+          label: `Desde ${formatDate(currentStart)} hasta ${formatDate(currentEnd)}`
+        });
+        
+        // Move to next period (14 days later, next Monday)
+        currentStart.setDate(currentStart.getDate() + 14);
+      }
+      
+      return periods;
+    }
+
+    function formatDate(date) {
+      const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      return `${date.getDate()} de ${months[date.getMonth()]} del ${date.getFullYear()}`;
+    }
+
+    // State
+    let currentStep = 1;
+    const formData = {};
+
+    // Initialize
+    function init() {
+      populatePayPeriods();
+      renderFundingSources();
+      setupEventListeners();
+      updateSummary();
+    }
+
+    // Populate pay periods dropdown
+    function populatePayPeriods() {
+      const select = document.getElementById('payPeriod');
+      const periods = generatePayPeriods();
+      
+      periods.forEach(period => {
+        const option = document.createElement('option');
+        option.value = period.value;
+        option.textContent = period.label;
+        select.appendChild(option);
+      });
+    }
+
+    // Render funding sources with budget tracking
+    function renderFundingSources() {
+      const container = document.getElementById('fundingSourcesContainer');
+      
+      let html = '';
+      
+      // Regular funding sources
+      fundingSources.forEach(source => {
+        // Get budgeted percentage for this project
+        let budgetInfo = '';
+        if (currentEmployeeAllocation && currentEmployeeAllocation[source.budgetKey]) {
+          const budgetPct = (currentEmployeeAllocation[source.budgetKey] * 100).toFixed(0);
+          budgetInfo = `<span style="font-size: 12px; color: #059669; background: #dcfce7; padding: 3px 8px; border-radius: 4px; margin-left: 8px;">Budget: ${budgetPct}%</span>`;
+        }
+        
+        html += `
+        <div class="funding-source" id="funding-${source.key}">
+          <div class="funding-header">
+            <div class="funding-color" style="background: ${source.color};"></div>
+            <div class="funding-label">${source.label} ${budgetInfo}</div>
+            <div style="font-size: 13px; color: #6b7280; font-weight: 600; margin-left: auto;" id="percent-${source.key}">0%</div>
+          </div>
+          
+          <div class="hours-input-section">
+            <div class="hours-and-tasks">
+              <div class="hours-input-wrapper">
+                <input 
+                  type="number" 
+                  id="hours-${source.key}" 
+                  min="0" 
+                  step="0.5" 
+                  placeholder="0"
+                  data-funding="${source.key}">
+                <span class="hours-label">hours</span>
+              </div>
+              <textarea 
+                id="tasks-${source.key}" 
+                placeholder="Describe tasks/activities performed on this project..."
+                rows="2"
+                style="resize: vertical; min-height: 44px;"></textarea>
+            </div>
+            
+            <div class="daily-breakdown" id="daily-${source.key}" style="display: none;">
+              <div class="daily-breakdown-header">Daily Hours Breakdown (optional)</div>
+              <div class="daily-grid" id="daily-grid-${source.key}">
+                <!-- Will be populated dynamically based on pay period -->
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+      });
+      
+      // EcoEx General - PTO Section
+      html += `
+        <div class="funding-source" id="funding-ecoexGeneral" style="background: #fef3c7; border: 2px solid #f59e0b;">
+          <div class="funding-header">
+            <div class="funding-color" style="background: #f59e0b;"></div>
+            <div class="funding-label">EcoEx General - PTO (Paid Time Off)</div>
+            <div style="font-size: 13px; color: #6b7280; font-weight: 600; margin-left: auto;" id="percent-ecoexGeneral">0%</div>
+          </div>
+          
+          <div style="font-size: 12px; color: #92400e; margin-bottom: 12px; font-style: italic;">
+            Only enter hours if you took Holiday, Vacation, or Sick Day during this pay period
+          </div>
+          
+          <div class="hours-input-section">
+      `;
+      
+      // PTO types
+      ptoTypes.forEach(pto => {
+        html += `
+            <div style="display: grid; grid-template-columns: 200px 140px 1fr; gap: 12px; align-items: center; margin-bottom: 8px;">
+              <label style="font-size: 13px; color: #1f2937; font-weight: 500; margin: 0;">${pto.label}:</label>
+              <div class="hours-input-wrapper">
+                <input 
+                  type="number" 
+                  id="pto-${pto.key}" 
+                  min="0" 
+                  step="0.5" 
+                  placeholder="0"
+                  data-pto="${pto.key}">
+                <span class="hours-label">hours</span>
+              </div>
+              <input 
+                type="text" 
+                id="ptoDate-${pto.key}" 
+                placeholder="Date(s) taken (e.g., Feb 3, Feb 10)"
+                style="font-size: 13px;">
+            </div>
+        `;
+      });
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      // Variance explanation section (only shows if there's variance)
+      html += `
+        <div id="varianceSection" style="display: none; margin-top: 24px; padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 12px;">
+          <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 8px;">
+            ⚠️ Variance Detected
+          </div>
+          <div style="font-size: 13px; color: #78350f; margin-bottom: 12px;">
+            Your actual time distribution differs from your budgeted allocation. Please explain the reason below:
+          </div>
+          <textarea 
+            id="varianceExplanation" 
+            rows="3" 
+            placeholder="Example: Worked extra hours on ERI due to urgent workshop preparation; fewer hours on NASA Isla because deliverables were completed ahead of schedule..."
+            style="width: 100%; padding: 12px; border: 2px solid #f59e0b; border-radius: 8px; font-size: 14px;"></textarea>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+
+      // Add event listeners
+      fundingSources.forEach(source => {
+        const hoursInput = document.getElementById(`hours-${source.key}`);
+        hoursInput.addEventListener('input', () => {
+          calculateTotal();
+          toggleDailyBreakdown(source.key);
+        });
+        
+        const tasksInput = document.getElementById(`tasks-${source.key}`);
+        tasksInput.addEventListener('input', () => {
+          updateFundingStyle(source.key);
+        });
+      });
+      
+      // Add event listeners for PTO
+      ptoTypes.forEach(pto => {
+        document.getElementById(`pto-${pto.key}`).addEventListener('input', calculateTotal);
+      });
+    }
+
+    // Toggle daily breakdown visibility
+    function toggleDailyBreakdown(fundingKey) {
+      const hours = parseFloat(document.getElementById(`hours-${fundingKey}`).value) || 0;
+      const dailyDiv = document.getElementById(`daily-${fundingKey}`);
+      
+      if (hours > 0) {
+        dailyDiv.style.display = 'block';
+        populateDailyBreakdown(fundingKey);
+      } else {
+        dailyDiv.style.display = 'none';
+      }
+    }
+
+    // Populate daily breakdown based on selected pay period
+    function populateDailyBreakdown(fundingKey) {
+      const payPeriodSelect = document.getElementById('payPeriod');
+      if (!payPeriodSelect.value) return;
+      
+      const [startStr, endStr] = payPeriodSelect.value.split('|');
+      const startDate = new Date(startStr);
+      const endDate = new Date(endStr);
+      
+      const dailyGrid = document.getElementById(`daily-grid-${fundingKey}`);
+      const existingInputs = {};
+      
+      // Save existing values
+      dailyGrid.querySelectorAll('input').forEach(input => {
+        existingInputs[input.id] = input.value;
+      });
+      
+      dailyGrid.innerHTML = '';
+      
+      let currentDate = new Date(startDate);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const dayName = days[currentDate.getDay()];
+        const monthDay = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+        const inputId = `daily-${fundingKey}-${dateStr}`;
+        
+        const dailyInput = document.createElement('div');
+        dailyInput.className = 'daily-input';
+        dailyInput.innerHTML = `
+          <label>${dayName} ${monthDay}</label>
+          <input 
+            type="number" 
+            id="${inputId}"
+            min="0" 
+            step="0.5" 
+            placeholder="0"
+            value="${existingInputs[inputId] || ''}">
+        `;
+        dailyGrid.appendChild(dailyInput);
+        
+        // Add event listener to recalculate
+        dailyInput.querySelector('input').addEventListener('input', () => {
+          updateTotalFromDaily(fundingKey);
+        });
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+
+    // Update total hours from daily breakdown
+    function updateTotalFromDaily(fundingKey) {
+      const dailyInputs = document.querySelectorAll(`#daily-grid-${fundingKey} input`);
+      let total = 0;
+      
+      dailyInputs.forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      
+      document.getElementById(`hours-${fundingKey}`).value = total > 0 ? total.toFixed(1) : '';
+      calculateTotal();
+    }
+
+    // Update funding source styling
+    function updateFundingStyle(fundingKey) {
+      const hours = parseFloat(document.getElementById(`hours-${fundingKey}`).value) || 0;
+      const tasks = document.getElementById(`tasks-${fundingKey}`).value.trim();
+      const fundingDiv = document.getElementById(`funding-${fundingKey}`);
+      
+      if (hours > 0 || tasks) {
+        fundingDiv.classList.add('has-value');
+      } else {
+        fundingDiv.classList.remove('has-value');
+      }
+    }
+
+    // Calculate total hours
+    function calculateTotal() {
+      const targetHours = parseFloat(document.getElementById('totalHours').value) || 0;
+      let allocatedHours = 0;
+
+      // Calculate hours from funding sources
+      fundingSources.forEach(source => {
+        const hours = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+        allocatedHours += hours;
+        updateFundingStyle(source.key);
+        
+        // Calculate and display percentage
+        const percentage = targetHours > 0 ? (hours / targetHours * 100).toFixed(1) : 0;
+        const percentEl = document.getElementById(`percent-${source.key}`);
+        if (percentEl) {
+          percentEl.textContent = percentage + '%';
+          percentEl.style.color = hours > 0 ? '#059669' : '#6b7280';
+        }
+      });
+      
+      // Calculate PTO hours
+      let ptoHours = 0;
+      ptoTypes.forEach(pto => {
+        const hours = parseFloat(document.getElementById(`pto-${pto.key}`).value) || 0;
+        ptoHours += hours;
+      });
+      allocatedHours += ptoHours;
+      
+      // AUTO-FILL Total Hours field with calculated total
+      const totalHoursField = document.getElementById('totalHours');
+      totalHoursField.value = allocatedHours > 0 ? allocatedHours.toFixed(1) : '';
+      const targetHours = allocatedHours; // Use calculated total as target
+      
+      // Update PTO percentage
+      const ptoPercentage = targetHours > 0 ? (ptoHours / targetHours * 100).toFixed(1) : 0;
+      const ptoPercentEl = document.getElementById('percent-ecoexGeneral');
+      if (ptoPercentEl) {
+        ptoPercentEl.textContent = ptoPercentage + '%';
+        ptoPercentEl.style.color = ptoHours > 0 ? '#f59e0b' : '#6b7280';
+      }
+
+      // Update total display
+      const totalBox = document.getElementById('totalBox');
+      const totalHours2 = document.getElementById('totalHours2');
+      const totalMessage = document.getElementById('totalMessage');
+
+      totalHours2.textContent = allocatedHours.toFixed(1) + ' hrs';
+
+      if (allocatedHours === 0) {
+        totalBox.className = 'total-box invalid';
+        totalMessage.textContent = 'Enter hours in projects below';
+      } else {
+        totalBox.className = 'total-box valid';
+        totalMessage.textContent = '✓ Total calculated automatically';
+      }
+      
+      // Check for variance
+      checkVariance();
+
+      return allocatedHours;
+    }
+    
+    // Check if there's variance between budget and actual
+    function checkVariance() {
+      if (!currentEmployeeAllocation) {
+        document.getElementById('varianceSection').style.display = 'none';
+        return;
+      }
+      
+      const targetHours = parseFloat(document.getElementById('totalHours').value) || 0;
+      if (targetHours === 0) {
+        document.getElementById('varianceSection').style.display = 'none';
+        return;
+      }
+      
+      let hasVariance = false;
+      
+      // Check each funding source
+      fundingSources.forEach(source => {
+        const actualHours = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+        const actualPercent = targetHours > 0 ? (actualHours / targetHours) : 0;
+        const budgetPercent = currentEmployeeAllocation[source.budgetKey] || 0;
+        
+        // If there's a difference of more than 1%, flag it
+        if (Math.abs(actualPercent - budgetPercent) > 0.01 && budgetPercent > 0) {
+          hasVariance = true;
+        }
+      });
+      
+      // Show/hide variance section
+      document.getElementById('varianceSection').style.display = hasVariance ? 'block' : 'none';
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById('btnPrev').addEventListener('click', prevStep);
+      document.getElementById('btnNext').addEventListener('click', nextStep);
+      document.getElementById('btnSubmit').addEventListener('click', handleSubmit);
+      document.getElementById('totalHours').addEventListener('input', calculateTotal);
+      
+      // Employee name change - load budget allocation
+      document.getElementById('employeeName').addEventListener('change', function() {
+        const name = this.value.trim();
+        if (name) {
+          currentEmployeeAllocation = getEmployeeAllocation(name);
+          if (currentEmployeeAllocation) {
+            console.log('Budget allocation loaded for:', name);
+            renderFundingSources(); // Re-render to show budget info
+          } else {
+            console.log('No budget allocation found for:', name);
+            currentEmployeeAllocation = null;
+            renderFundingSources(); // Re-render anyway
+          }
+        }
+      });
+      
+      // Job title dropdown - show/hide "Other" field
+      document.getElementById('jobTitle').addEventListener('change', function() {
+        const otherGroup = document.getElementById('otherJobTitleGroup');
+        if (this.value === 'Other') {
+          otherGroup.style.display = 'block';
+        } else {
+          otherGroup.style.display = 'none';
+          document.getElementById('otherJobTitle').value = '';
+        }
+      });
+      
+      document.getElementById('payPeriod').addEventListener('change', () => {
+        // Regenerate daily breakdowns when pay period changes
+        fundingSources.forEach(source => {
+          const hours = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+          if (hours > 0) {
+            populateDailyBreakdown(source.key);
+          }
+        });
+      });
+    }
+
+    // Validation functions
+    function validateStep1() {
+      const errors = {};
+      
+      if (!document.getElementById('employeeName').value.trim()) {
+        errors.employeeName = '⚠ Required';
+      }
+      
+      const jobTitle = document.getElementById('jobTitle').value;
+      if (!jobTitle) {
+        errors.jobTitle = '⚠ Required';
+      } else if (jobTitle === 'Other' && !document.getElementById('otherJobTitle').value.trim()) {
+        errors.otherJobTitle = '⚠ Please specify your job title';
+      }
+      
+      if (!document.getElementById('department').value) {
+        errors.department = '⚠ Required';
+      }
+      if (!document.getElementById('payPeriod').value) {
+        errors.payPeriod = '⚠ Required';
+      }
+
+      return errors;
+    }
+
+    function validateStep2() {
+      const errors = {};
+      const allocatedHours = calculateTotal();
+
+      // Total hours is now auto-calculated, so just check if any hours were allocated
+      if (allocatedHours === 0) {
+        errors.hours = '⚠ You must allocate hours to at least one project or PTO';
+      }
+
+      const hasAtLeastOne = fundingSources.some(source => {
+        const hours = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+        const tasks = document.getElementById(`tasks-${source.key}`).value.trim();
+        return hours > 0 && tasks;
+      });
+      
+      // Check if PTO has hours
+      const hasPTO = ptoTypes.some(pto => {
+        return parseFloat(document.getElementById(`pto-${pto.key}`).value) || 0 > 0;
+      });
+
+      if (!hasAtLeastOne && !hasPTO) {
+        errors.hours = '⚠ At least one project must have hours AND task description, or PTO must be entered';
+      }
+
+      return errors;
+    }
+
+    function validateStep3() {
+      const errors = {};
+      
+      if (!document.getElementById('employeeSignature').value.trim()) {
+        errors.employeeSignature = '⚠ Required';
+      }
+      if (!document.getElementById('employeeDate').value) {
+        errors.employeeDate = '⚠ Required';
+      }
+
+      return errors;
+    }
+
+    function displayErrors(errors) {
+      // Clear all errors
+      document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+      document.querySelectorAll('input, select, textarea').forEach(el => el.classList.remove('error'));
+
+      // Display new errors
+      Object.keys(errors).forEach(key => {
+        const errorEl = document.getElementById(`error-${key}`);
+        const inputEl = document.getElementById(key);
+        
+        if (errorEl) {
+          errorEl.textContent = errors[key];
+        }
+        if (inputEl) {
+          inputEl.classList.add('error');
+        }
+      });
+
+      return Object.keys(errors).length === 0;
+    }
+
+    // Navigation
+    function nextStep() {
+      let errors = {};
+      
+      switch(currentStep) {
+        case 1:
+          errors = validateStep1();
+          break;
+        case 2:
+          errors = validateStep2();
+          break;
+        case 3:
+          errors = validateStep3();
+          break;
+      }
+
+      if (displayErrors(errors)) {
+        if (currentStep < 3) {
+          currentStep++;
+          updateUI();
+          window.scrollTo(0, 0);
+        }
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateUI();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function updateUI() {
+      // Update sections
+      document.querySelectorAll('.form-section').forEach((section, index) => {
+        section.classList.toggle('active', index + 1 === currentStep);
+      });
+
+      // Update progress circles
+      for (let i = 1; i <= 3; i++) {
+        const circle = document.getElementById(`circle-${i}`);
+        const label = document.getElementById(`label-${i}`);
+        
+        if (i < currentStep) {
+          circle.className = 'step-circle completed';
+          circle.textContent = '✓';
+          label.className = 'step-label';
+        } else if (i === currentStep) {
+          circle.className = 'step-circle active';
+          circle.textContent = i;
+          label.className = 'step-label active';
+        } else {
+          circle.className = 'step-circle';
+          circle.textContent = i;
+          label.className = 'step-label';
+        }
+      }
+
+      // Update buttons
+      document.getElementById('btnPrev').disabled = currentStep === 1;
+      
+      if (currentStep === 3) {
+        document.getElementById('btnNext').style.display = 'none';
+        document.getElementById('btnSubmit').style.display = 'block';
+        updateSummary();
+      } else {
+        document.getElementById('btnNext').style.display = 'block';
+        document.getElementById('btnSubmit').style.display = 'none';
+      }
+    }
+
+    function updateSummary() {
+      const summaryContent = document.getElementById('summaryContent');
+      if (!summaryContent) return;
+
+      const name = document.getElementById('employeeName').value;
+      const payPeriod = document.getElementById('payPeriod');
+      const periodText = payPeriod.options[payPeriod.selectedIndex]?.text || 'Not selected';
+      const hours = document.getElementById('totalHours').value;
+
+      let distribution = '';
+      
+      // Regular funding sources
+      fundingSources.forEach(source => {
+        const hoursVal = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+        const tasks = document.getElementById(`tasks-${source.key}`).value.trim();
+        if (hoursVal > 0) {
+          const percentage = hours > 0 ? (hoursVal / parseFloat(hours) * 100).toFixed(1) : 0;
+          distribution += `
+            <div class="summary-item">
+              <strong>${source.label}:</strong> ${hoursVal} hours (${percentage}%)
+              ${tasks ? `<br/><span style="color: #6b7280; font-size: 13px; padding-left: 16px;">${tasks}</span>` : ''}
+            </div>
+          `;
+        }
+      });
+      
+      // PTO
+      let ptoTotal = 0;
+      let ptoDetails = [];
+      ptoTypes.forEach(pto => {
+        const hoursVal = parseFloat(document.getElementById(`pto-${pto.key}`).value) || 0;
+        const dateVal = document.getElementById(`ptoDate-${pto.key}`).value.trim();
+        if (hoursVal > 0) {
+          ptoTotal += hoursVal;
+          ptoDetails.push(`${pto.label}: ${hoursVal} hrs${dateVal ? ` (${dateVal})` : ''}`);
+        }
+      });
+      
+      if (ptoTotal > 0) {
+        const percentage = hours > 0 ? (ptoTotal / parseFloat(hours) * 100).toFixed(1) : 0;
+        distribution += `
+          <div class="summary-item">
+            <strong>EcoEx General - PTO:</strong> ${ptoTotal} hours (${percentage}%)
+            <br/><span style="color: #6b7280; font-size: 13px; padding-left: 16px;">${ptoDetails.join('; ')}</span>
+          </div>
+        `;
+      }
+
+      summaryContent.innerHTML = `
+        <div class="summary-item"><strong>Employee:</strong> ${name}</div>
+        <div class="summary-item"><strong>Pay Period:</strong> ${periodText}</div>
+        <div class="summary-item"><strong>Total Hours:</strong> ${hours}</div>
+        <div class="summary-divider">
+          <strong>Time Distribution:</strong>
+          <div style="margin-top: 8px; padding-left: 16px;">
+            ${distribution || '<div class="summary-item">No hours allocated</div>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleSubmit() {
+      const errors = validateStep3();
+      
+      if (displayErrors(errors)) {
+        generatePDF();
+      }
+    }
+
+    // Generate downloadable report
+    function generatePDF() {
+      // Collect all data
+      const payPeriod = document.getElementById('payPeriod');
+      const [startDate, endDate] = payPeriod.value.split('|');
+      
+      const jobTitleSelect = document.getElementById('jobTitle');
+      let jobTitleValue = jobTitleSelect.value;
+      if (jobTitleValue === 'Other') {
+        jobTitleValue = document.getElementById('otherJobTitle').value;
+      }
+      
+      const data = {
+        employeeName: document.getElementById('employeeName').value,
+        jobTitle: jobTitleValue,
+        department: document.getElementById('department').value,
+        payPeriod: payPeriod.options[payPeriod.selectedIndex].text,
+        payPeriodStart: startDate,
+        payPeriodEnd: endDate,
+        totalHours: document.getElementById('totalHours').value,
+        employeeSignature: document.getElementById('employeeSignature').value,
+        employeeDate: document.getElementById('employeeDate').value
+      };
+
+      // Generate report content
+      let reportContent = `TIME AND EFFORT REPORT
+EcoExploratorio: Museo de Ciencias de Puerto Rico
+In compliance with 2 CFR 200.430(i)
+
+═══════════════════════════════════════════════════════════════════
+
+EMPLOYEE INFORMATION
+
+Name: ${data.employeeName}
+Job Title: ${data.jobTitle}
+Department: ${data.department}
+
+PAY PERIOD
+
+Period: ${data.payPeriod}
+Total Hours Worked: ${data.totalHours} hours
+
+TIME DISTRIBUTION AND ACTIVITIES
+
+`;
+
+      let totalAllocated = 0;
+      
+      // Regular funding sources
+      fundingSources.forEach(source => {
+        const hours = parseFloat(document.getElementById(`hours-${source.key}`).value) || 0;
+        const tasks = document.getElementById(`tasks-${source.key}`).value.trim();
+        
+        if (hours > 0) {
+          const percentage = ((hours / parseFloat(data.totalHours)) * 100).toFixed(1);
+          reportContent += `${source.label}: ${hours} hours (${percentage}%)\n`;
+          if (tasks) {
+            reportContent += `Activities: ${tasks}\n`;
+          }
+          
+          // Add daily breakdown if available
+          const dailyGrid = document.getElementById(`daily-grid-${source.key}`);
+          if (dailyGrid && dailyGrid.querySelectorAll('input').length > 0) {
+            const dailyHours = [];
+            dailyGrid.querySelectorAll('input').forEach(input => {
+              const value = parseFloat(input.value) || 0;
+              if (value > 0) {
+                const label = input.parentElement.querySelector('label').textContent;
+                dailyHours.push(`${label}: ${value}hrs`);
+              }
+            });
+            if (dailyHours.length > 0) {
+              reportContent += `Daily breakdown: ${dailyHours.join(', ')}\n`;
+            }
+          }
+          
+          reportContent += `\n`;
+          totalAllocated += hours;
+        }
+      });
+      
+      // PTO section
+      let ptoTotal = 0;
+      let ptoDetails = [];
+      ptoTypes.forEach(pto => {
+        const hours = parseFloat(document.getElementById(`pto-${pto.key}`).value) || 0;
+        const dateVal = document.getElementById(`ptoDate-${pto.key}`).value.trim();
+        if (hours > 0) {
+          ptoTotal += hours;
+          ptoDetails.push(`  ${pto.label}: ${hours} hours${dateVal ? ` (${dateVal})` : ''}`);
+        }
+      });
+      
+      if (ptoTotal > 0) {
+        const percentage = ((ptoTotal / parseFloat(data.totalHours)) * 100).toFixed(1);
+        reportContent += `EcoEx General - PTO (Paid Time Off): ${ptoTotal} hours (${percentage}%)\n`;
+        reportContent += ptoDetails.join('\n') + '\n\n';
+        totalAllocated += ptoTotal;
+      }
+
+      reportContent += `TOTAL ALLOCATED: ${totalAllocated.toFixed(1)} hours
+
+═══════════════════════════════════════════════════════════════════
+`;
+
+      // Add variance explanation if provided
+      const varianceExplanation = document.getElementById('varianceExplanation');
+      if (varianceExplanation && varianceExplanation.value.trim()) {
+        reportContent += `
+VARIANCE EXPLANATION
+
+${varianceExplanation.value.trim()}
+
+═══════════════════════════════════════════════════════════════════
+`;
+      }
+
+      reportContent += `
+EMPLOYEE CERTIFICATION
+
+I certify that this report accurately reflects the actual time worked by me
+during the period indicated above and that the distribution of time is a true
+and correct representation of my activities. I understand that this information
+is used to support salary charges to grants and may be subject to audit or
+review. This certification is made in compliance with 2 CFR 200.430(i) and
+knowingly providing false information may result in disciplinary action and
+recovery of funds.
+
+Employee Signature: ${data.employeeSignature}
+Date: ${data.employeeDate}
+
+═══════════════════════════════════════════════════════════════════
+
+NEXT STEPS FOR APPROVAL
+
+This report will be submitted to your supervisor for review and approval.
+
+1. Submit this report via Google Form
+2. Supervisor will receive automatic notification
+3. Supervisor will review and approve in Google Sheet
+4. Finance will process after supervisor approval
+
+═══════════════════════════════════════════════════════════════════
+
+Generated: ${new Date().toISOString()}
+This document was electronically generated and is valid without physical signature.
+`;
+
+      // Create downloadable file
+      const blob = new Blob([reportContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `TimeEffort_${data.employeeName.replace(/\s+/g, '_')}_${data.payPeriodStart}_${data.payPeriodEnd}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Show success toast
+      const toast = document.getElementById('successToast');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 5000);
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>
